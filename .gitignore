@@ -1,0 +1,6 @@
+.vscode
+/__pycache__
+/logs/*
+!/logs/.keep
+/setting.ini
+/fail_list.txt

@@ -1,0 +1,16 @@
+certifi==2021.5.30
+cffi @ file:///C:/ci/cffi_1613247431367/work
+cryptography @ file:///C:/ci/cryptography_1616769504165/work
+et-xmlfile==1.1.0
+numpy==1.20.3
+openpyxl==3.0.7
+pandas==1.2.4
+pycparser @ file:///tmp/build/80754af9/pycparser_1594388511720/work
+pymongo==3.11.4
+PyMySQL @ file:///C:/ci/pymysql_1610464861530/work
+python-dateutil==2.8.1
+pytz==2021.1
+pywin32==228
+six==1.16.0
+wincertstore==0.2
+xlrd==2.0.1
