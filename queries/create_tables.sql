@@ -1,6 +1,8 @@
+DROP TABLE IF EXISTS dbo.Programs_list
+DROP TABLE IF EXISTS dbo.Toolings_list
+
 CREATE TABLE dbo.Programs_list
 (
-  ID INT NOT NULL PRIMARY KEY, -- primary key column
   ONumber [NVARCHAR](255) NOT NULL,
   ModelNum [NVARCHAR](255),
   PartsName [NVARCHAR](255),
@@ -17,7 +19,6 @@ CREATE TABLE dbo.Programs_list
 
 CREATE TABLE dbo.Toolings_list
 (
-  ID INT NOT NULL PRIMARY KEY, -- primary key column
   ONumber [NVARCHAR](255) NOT NULL,
   ItemCode [NVARCHAR](255),
   FilesName [NVARCHAR](255),

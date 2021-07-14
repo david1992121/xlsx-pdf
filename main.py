@@ -37,20 +37,40 @@ def get_category(tool_name):
 
 def get_program_data(sheet_data, cur_dir):
     program_data = {}
-    program_data["ONumber"] = sheet_data.iloc[2][2]
-    program_data["ModelNum"] = sheet_data.iloc[3][2]
-    program_data["PartsName"] = sheet_data.iloc[0][7]
-    program_data["GoodsName"] = sheet_data.iloc[1][7]
-    program_data["FilesName"] = sheet_data.iloc[2][7]
-    program_data["CreateDate"] = sheet_data.iloc[0][16]
-    program_data["ItemCode"] = sheet_data.iloc[0][12]
-    program_data["Tools"] = sheet_data.iloc[1][12]
-    program_data["Creator"] = sheet_data.iloc[1][16]
-    program_data["Tooling"] = sheet_data.iloc[3][7]
-    program_data["ProcessTime"] = sheet_data.iloc[2][12]
+    program_data["ONumber"] = sheet_data.iloc[2][2] if not pd.isnull(sheet_data.iloc[2][2]) else ""
+    program_data["ModelNum"] = sheet_data.iloc[3][2] if not pd.isnull(sheet_data.iloc[3][2]) else ""
+    program_data["PartsName"] = sheet_data.iloc[0][7] if not pd.isnull(sheet_data.iloc[0][7]) else ""
+    program_data["GoodsName"] = sheet_data.iloc[1][7] if not pd.isnull(sheet_data.iloc[1][7]) else ""
+    program_data["FilesName"] = sheet_data.iloc[2][7] if not pd.isnull(sheet_data.iloc[2][7]) else ""
+    program_data["CreateDate"] = sheet_data.iloc[0][16].strftime("%Y/%m/%d") if not pd.isnull(sheet_data.iloc[0][16]) else ""
+    program_data["ItemCode"] = sheet_data.iloc[0][12] if not pd.isnull(sheet_data.iloc[0][12]) else ""
+    program_data["Tools"] = sheet_data.iloc[1][12] if not pd.isnull(sheet_data.iloc[1][12]) else 0
+    program_data["Creator"] = sheet_data.iloc[1][16] if not pd.isnull(sheet_data.iloc[1][16]) else ""
+    program_data["Tooling"] = sheet_data.iloc[3][7] if not pd.isnull(sheet_data.iloc[3][7]) else ""
+    program_data["ProcessTime"] = sheet_data.iloc[2][12] if not pd.isnull(sheet_data.iloc[2][12]) else ""
     program_data["FolderPath"] = cur_dir
 
     return program_data
+
+def get_tooling_data(sheet_data, cur_dir):
+    cur_index = 5
+    tool_data = []
+    rows_num = len(sheet_data.index)
+    while cur_index < rows_num and not pd.isnull(sheet_data.iloc[cur_index][0]):
+        cur_tool_data = {}
+        cur_tool_data["ONumber"] = sheet_data.iloc[2][2] if not pd.isnull(sheet_data.iloc[2][2]) else ""
+        cur_tool_data["ItemCode"] = sheet_data.iloc[0][12] if not pd.isnull(sheet_data.iloc[0][12]) else ""
+        cur_tool_data["FilesName"] = sheet_data.iloc[2][7] if not pd.isnull(sheet_data.iloc[2][7]) else ""
+        cur_tool_data["CreateDate"] = sheet_data.iloc[0][16].strftime("%Y/%m/%d") if not pd.isnull(sheet_data.iloc[0][16]) else ""
+        cur_tool_data["Tooling"] = sheet_data.iloc[3][7] if not pd.isnull(sheet_data.iloc[3][7]) else ""
+        cur_tool_data["FolderPath"] = cur_dir
+        cur_tool_data["TNumber"] = sheet_data.iloc[cur_index][0]
+        cur_tool_data["ToolName"] = sheet_data.iloc[cur_index][8]
+        cur_tool_data["HolderName"] = sheet_data.iloc[cur_index][9]
+        cur_tool_data["CutDistance"] = sheet_data.iloc[cur_index][17]
+        tool_data.append(cur_tool_data)
+        cur_index += 1        
+    return tool_data
 
 def pdf_proc(queue, error_queue, index, visible):
     pdf_changer = PDFChanger(queue, error_queue, index, visible)
@@ -94,9 +114,9 @@ def main(mode = "success"):
             while line:
                 fail_list.append(line.strip())
                 line = f.readline()
-        os.remove(err_file)
+        os.rename(err_file, os.path.join(cur_folder, 'fail_list_origin.txt'))
 
-    print(fail_list)
+    # print(fail_list)
     
     # start pdf proc
     procs = []
@@ -128,6 +148,10 @@ def main(mode = "success"):
         # get category name
         tool_name = main_file_data.iloc[3][7]
         category = get_category(tool_name)
+        if category == "":
+            logging.info("{0}のファイルが加工機名がありません。".format(base_name))
+            continue
+
         category_path = os.path.join(output_path, category)
         # print(category)
 
@@ -146,13 +170,21 @@ def main(mode = "success"):
         
         # get mssql data
         program_data = get_program_data(main_file_data, cur_o_dir)
-        # print(program_data)
+        if program_data["ONumber"] == "":
+            logging.info("{0}のファイルがO番号がありません。".format(base_name))
+            continue
+        mssql_follower.set_program_data(program_data)
+
+        tool_data = get_tooling_data(main_file_data, cur_o_dir)
+        if len(tool_data) > 0:
+            mssql_follower.set_tooling_data(tool_data, program_data["ONumber"], program_data["Tooling"])
 
         # xlsx to pdf
         file_queue.put({
             "input": file_item,
             "output": "{0}.pdf".format(os.path.join(cur_o_dir, file_name))
         })
+        # break
 
     for _ in range(proccesses):
         file_queue.put({
