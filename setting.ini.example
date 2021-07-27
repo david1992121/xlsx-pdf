@@ -1,0 +1,15 @@
+[mssql]
+host=
+port=
+user=
+password=
+db=
+
+[input]
+folder_path=
+[output]
+folder_path=
+
+[pdf]
+visible=true
+proccesses=5
