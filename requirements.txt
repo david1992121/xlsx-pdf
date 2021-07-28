@@ -1,16 +1,20 @@
 certifi==2021.5.30
-cffi @ file:///C:/ci/cffi_1613247431367/work
-cryptography @ file:///C:/ci/cryptography_1616769504165/work
+cffi==1.14.5
+cryptography==3.4.7
 et-xmlfile==1.1.0
 numpy==1.20.3
 openpyxl==3.0.7
 pandas==1.2.4
-pycparser @ file:///tmp/build/80754af9/pycparser_1594388511720/work
+pip==21.1.1
+pycparser==2.20
 pymongo==3.11.4
-PyMySQL @ file:///C:/ci/pymysql_1610464861530/work
+pymssql==2.2.1
+PyMySQL==1.0.2
 python-dateutil==2.8.1
 pytz==2021.1
 pywin32==228
+setuptools==52.0.0.post20210125
 six==1.16.0
+wheel==0.36.2
 wincertstore==0.2
 xlrd==2.0.1
