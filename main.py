@@ -91,7 +91,7 @@ def main(mode = "success"):
     init_log()
     logging.info("------------------------ スタート ------------------------")
     config = configparser.ConfigParser()
-    config.read('setting.ini')
+    config.read('setting.ini', 'utf-8')
     
     input_path = config["input"]["folder_path"]
     output_path = config["output"]["folder_path"]
