@@ -123,8 +123,11 @@ class PDFChanger():
                     self.wb.ActiveSheet.ExportAsFixedFormat(0, output_file)
 
                     self.wb.Close()
-                    self.wb = None        
-                    
+                    self.wb = None
+
+                    # Remove that file
+                    os.remove(input_file)
+
                 except Exception as e:
                     logging.info("{0}のファイルをPDF化中にエラー発生".format(input_file))
                     logging.error(e)
