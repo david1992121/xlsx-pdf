@@ -173,11 +173,11 @@ def main(mode = "success"):
         if program_data["ONumber"] == "":
             logging.info("{0}のファイルがO番号がありません。".format(base_name))
             continue
-        mssql_follower.set_program_data(program_data)
+        program_id = mssql_follower.set_program_data(program_data)
 
         tool_data = get_tooling_data(main_file_data, cur_o_dir)
         if len(tool_data) > 0:
-            mssql_follower.set_tooling_data(tool_data, program_data["ONumber"], program_data["Tooling"])
+            mssql_follower.set_tooling_data(tool_data, program_data["ONumber"], program_data["Tooling"], program_id)
 
         # xlsx to pdf
         file_queue.put({

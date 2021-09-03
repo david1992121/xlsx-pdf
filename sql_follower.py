@@ -63,12 +63,13 @@ class MssqlFollower:
             cursor.execute(query, cur_data)
             self.conn.commit()
             logging.info("Programデータ追加完了")
+            return cursor.lastrowid
 
         except Exception as e:
             logging.error("プログラムレコード操作中エラー発生")
             logging.error(e)
 
-    def set_tooling_data(self, tool_data, o_num, tooling):
+    def set_tooling_data(self, tool_data, o_num, tooling, program_id):
         try:
             logging.info("O番号:{0}, 加工機:{1}のツールレコード削除中。。。".format(o_num, tooling))
             cursor = self.conn.cursor()
@@ -78,8 +79,9 @@ class MssqlFollower:
             first_data = tool_data[0]
             data = []
             for tool_data_item in tool_data:
-                data.append(tuple(tool_data_item.get(field_item, None) for field_item in tool_data_item.keys()))
+                data.append((program_id, ) + tuple(tool_data_item.get(field_item, None) for field_item in tool_data_item.keys()))
             fields = [x for x in first_data.keys()]
+            fields.insert(0, 'ProgramID')
             query = "INSERT INTO Toolings_list({0}) VALUES ({1})".format( ",".join(fields), ",".join(["%s"] * len(fields)))
             cursor.executemany(query, data)
             self.conn.commit()
