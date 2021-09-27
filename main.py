@@ -35,6 +35,15 @@ def get_category(tool_name):
     else:
         return tool_name
 
+def get_tnum(str_num):
+    if isinstance(str_num, str):
+        if str_num.startswith("T"):
+            return int(str_num[1:])
+        else:
+            return int(str_num)
+    else:
+        return int(str_num)
+
 def get_program_data(sheet_data, cur_dir):
     program_data = {}
     program_data["ONumber"] = sheet_data.iloc[2][2] if not pd.isnull(sheet_data.iloc[2][2]) else ""
@@ -56,20 +65,24 @@ def get_tooling_data(sheet_data, cur_dir):
     cur_index = 5
     tool_data = []
     rows_num = len(sheet_data.index)
-    while cur_index < rows_num and not pd.isnull(sheet_data.iloc[cur_index][0]):
-        cur_tool_data = {}
-        cur_tool_data["ONumber"] = sheet_data.iloc[2][2] if not pd.isnull(sheet_data.iloc[2][2]) else ""
-        cur_tool_data["ItemCode"] = sheet_data.iloc[0][12] if not pd.isnull(sheet_data.iloc[0][12]) else ""
-        cur_tool_data["FilesName"] = sheet_data.iloc[2][7] if not pd.isnull(sheet_data.iloc[2][7]) else ""
-        cur_tool_data["CreateDate"] = sheet_data.iloc[0][16].strftime("%Y/%m/%d") if not pd.isnull(sheet_data.iloc[0][16]) else ""
-        cur_tool_data["Tooling"] = sheet_data.iloc[3][7] if not pd.isnull(sheet_data.iloc[3][7]) else ""
-        cur_tool_data["FolderPath"] = cur_dir
-        cur_tool_data["TNumber"] = sheet_data.iloc[cur_index][0]
-        cur_tool_data["ToolName"] = sheet_data.iloc[cur_index][8]
-        cur_tool_data["HolderName"] = sheet_data.iloc[cur_index][9]
-        cur_tool_data["CutDistance"] = sheet_data.iloc[cur_index][17]
-        tool_data.append(cur_tool_data)
-        cur_index += 1        
+    try:
+        while cur_index < rows_num and not pd.isnull(sheet_data.iloc[cur_index][0]):
+            cur_tool_data = {}
+            cur_tool_data["ONumber"] = sheet_data.iloc[2][2] if not pd.isnull(sheet_data.iloc[2][2]) else ""
+            cur_tool_data["ItemCode"] = sheet_data.iloc[0][12] if not pd.isnull(sheet_data.iloc[0][12]) else ""
+            cur_tool_data["FilesName"] = sheet_data.iloc[2][7] if not pd.isnull(sheet_data.iloc[2][7]) else ""
+            cur_tool_data["CreateDate"] = sheet_data.iloc[0][16].strftime("%Y/%m/%d") if not pd.isnull(sheet_data.iloc[0][16]) else ""
+            cur_tool_data["Tooling"] = sheet_data.iloc[3][7] if not pd.isnull(sheet_data.iloc[3][7]) else ""
+            cur_tool_data["FolderPath"] = cur_dir
+            cur_tool_data["TNumber"] = get_tnum(sheet_data.iloc[cur_index][0])
+            cur_tool_data["ToolName"] = sheet_data.iloc[cur_index][8]
+            cur_tool_data["HolderName"] = sheet_data.iloc[cur_index][9]
+            cur_tool_data["CutDistance"] = sheet_data.iloc[cur_index][17]
+            tool_data.append(cur_tool_data)
+            cur_index += 1        
+    except:
+        print(sheet_data.iloc[cur_index][0])
+        print(cur_dir)
     return tool_data
 
 def pdf_proc(queue, error_queue, index, visible):
@@ -143,7 +156,7 @@ def main(mode = "success"):
 
         # get data from xlsx
         logging.info("Xlsxファイルからデータ取得中。。。：{}".format(file_item))
-        main_file_data = pd.read_excel(file_item, "工具リスト", index_col=None, header=None)
+        main_file_data = pd.read_excel(file_item, "工具リスト", index_col=None, header=None, engine='openpyxl')
 
         # get category name
         tool_name = main_file_data.iloc[3][7]
@@ -200,7 +213,7 @@ def main(mode = "success"):
     error_queue.join()
 
     logging.info("-------------------- 処理完了 ----------------------")
-    error_detector_proc.kill()
+    error_detector_proc.terminate()
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
