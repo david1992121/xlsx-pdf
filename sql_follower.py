@@ -69,11 +69,11 @@ class MssqlFollower:
             logging.error("プログラムレコード操作中エラー発生")
             logging.error(e)
 
-    def set_tooling_data(self, tool_data, o_num, tooling, program_id):
+    def set_tooling_data(self, tool_data, program_id):
         try:
-            logging.info("O番号:{0}, 加工機:{1}のツールレコード削除中。。。".format(o_num, tooling))
+            logging.info("ProgramIDが {}のツールレコード削除中。。。".format(program_id))
             cursor = self.conn.cursor()
-            cursor.execute("DELETE FROM Toolings_list WHERE ONumber = '{0}' AND Tooling = '{1}'".format(o_num, tooling))
+            cursor.execute("DELETE FROM Toolings_list WHERE ProgramID = {}".format(program_id))
             self.conn.commit()
 
             first_data = tool_data[0]

@@ -190,7 +190,7 @@ def main(mode = "success"):
 
         tool_data = get_tooling_data(main_file_data, cur_o_dir)
         if len(tool_data) > 0:
-            mssql_follower.set_tooling_data(tool_data, program_data["ONumber"], program_data["Tooling"], program_id)
+            mssql_follower.set_tooling_data(tool_data, program_id)
 
         # xlsx to pdf
         file_queue.put({
