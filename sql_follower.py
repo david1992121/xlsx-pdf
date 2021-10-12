@@ -56,7 +56,7 @@ class MssqlFollower:
             cursor = self.conn.cursor()
             cursor.execute("DELETE FROM Programs_list WHERE ONumber = '{0}' AND Tooling = '{1}'".format(program_data["ONumber"], program_data["Tooling"]))
             cursor.execute(
-                "DELETE FROM Toolings_list JOIN Programs_list ON Toolings_list.ProgramID = Programs_list.ID " + 
+                "DELETE Toolings_list FROM Toolings_list JOIN Programs_list ON Toolings_list.ProgramID = Programs_list.ID " + 
                 "WHERE Programs_list.ONumber = '{0}' AND Programs_list.Tooling = '{1}'".format(program_data["ONumber"], program_data["Tooling"]))
             self.conn.commit()
 
