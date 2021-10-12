@@ -4,7 +4,7 @@ import pandas as pd
 from threading import Thread
 from logging.handlers import TimedRotatingFileHandler
 from sql_follower import MssqlFollower
-from datetime import time
+from datetime import time as dTime
 from multiprocessing import Process, JoinableQueue
 
 def init_log():
@@ -187,7 +187,7 @@ def main(mode = "success"):
         if program_data["ONumber"] == "":
             logging.info("{0}のファイルがO番号がありません。".format(base_name))
             continue
-        if isinstance(program_data["ProcessTime"], time):
+        if isinstance(program_data["ProcessTime"], dTime):
             program_data["ProcessTime"] = program_data["ProcessTime"].strftime("%H:%M:%S")
 
 
