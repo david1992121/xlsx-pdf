@@ -4,6 +4,7 @@ import pandas as pd
 from threading import Thread
 from logging.handlers import TimedRotatingFileHandler
 from sql_follower import MssqlFollower
+from datetime import time
 from multiprocessing import Process, JoinableQueue
 
 def init_log():
@@ -186,18 +187,26 @@ def main(mode = "success"):
         if program_data["ONumber"] == "":
             logging.info("{0}のファイルがO番号がありません。".format(base_name))
             continue
+        if isinstance(program_data["ProcessTime"], time):
+            program_data["ProcessTime"] = program_data["ProcessTime"].strftime("%H:%M:%S")
+
+
         program_id = mssql_follower.set_program_data(program_data)
 
-        tool_data = get_tooling_data(main_file_data, cur_o_dir)
-        if len(tool_data) > 0:
-            mssql_follower.set_tooling_data(tool_data, program_id)
+        if program_id > 0:
 
-        # xlsx to pdf
-        file_queue.put({
-            "input": file_item,
-            "output": "{0}.pdf".format(os.path.join(cur_o_dir, file_name))
-        })
-        # break
+            tool_data = get_tooling_data(main_file_data, cur_o_dir)
+            if len(tool_data) > 0:
+                if mssql_follower.set_tooling_data(tool_data, program_id):
+
+                    # xlsx to pdf
+                    file_queue.put({
+                        "input": file_item,
+                        "output": "{0}.pdf".format(os.path.join(cur_o_dir, file_name))
+                    })
+
+        else:
+            break
 
     for _ in range(proccesses):
         file_queue.put({

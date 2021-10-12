@@ -54,10 +54,10 @@ class MssqlFollower:
         try:
             logging.info("O番号:{0}, 加工機:{1}のプログラムレコード削除中。。。".format(program_data["ONumber"], program_data["Tooling"]))
             cursor = self.conn.cursor()
-            cursor.execute("DELETE FROM Programs_list WHERE ONumber = '{0}' AND Tooling = '{1}'".format(program_data["ONumber"], program_data["Tooling"]))
             cursor.execute(
                 "DELETE Toolings_list FROM Toolings_list JOIN Programs_list ON Toolings_list.ProgramID = Programs_list.ID " + 
                 "WHERE Programs_list.ONumber = '{0}' AND Programs_list.Tooling = '{1}'".format(program_data["ONumber"], program_data["Tooling"]))
+            cursor.execute("DELETE FROM Programs_list WHERE ONumber = '{0}' AND Tooling = '{1}'".format(program_data["ONumber"], program_data["Tooling"]))
             self.conn.commit()
 
             cur_data = tuple(program_data.get(field_item, None) for field_item in program_data.keys())
@@ -71,13 +71,14 @@ class MssqlFollower:
         except Exception as e:
             logging.error("プログラムレコード操作中エラー発生")
             logging.error(e)
+            return 0
 
     def set_tooling_data(self, tool_data, program_id):
         try:
             logging.info("ProgramIDが {}のツールレコード削除中。。。".format(program_id))
             cursor = self.conn.cursor()
-            cursor.execute("DELETE FROM Toolings_list WHERE ProgramID = {}".format(program_id))
-            self.conn.commit()
+            # cursor.execute("DELETE FROM Toolings_list WHERE ProgramID = {}".format(program_id))
+            # self.conn.commit()
 
             first_data = tool_data[0]
             data = []
@@ -89,10 +90,12 @@ class MssqlFollower:
             cursor.executemany(query, data)
             self.conn.commit()
             logging.info("Programデータ追加完了")
+            return True
 
         except Exception as e:
             logging.error("ツールレコード操作中エラー発生")
             logging.error(e)
+            return False
 
     def __del__(self):
         logging.info("MSSQLフォロワープロセス終了。。。")
