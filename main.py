@@ -45,6 +45,15 @@ def get_tnum(str_num):
     else:
         return int(str_num)
 
+def get_cut_distance(value):
+    if pd.isnull(value):
+        return None
+    else:
+        if isinstance(value, str):
+            return None
+        else:
+            return value
+
 def get_program_data(sheet_data, cur_dir):
     program_data = {}
     program_data["ONumber"] = sheet_data.iloc[2][2] if not pd.isnull(sheet_data.iloc[2][2]) else ""
@@ -76,9 +85,9 @@ def get_tooling_data(sheet_data, cur_dir):
             cur_tool_data["Tooling"] = sheet_data.iloc[3][7] if not pd.isnull(sheet_data.iloc[3][7]) else ""
             cur_tool_data["FolderPath"] = cur_dir
             cur_tool_data["TNumber"] = get_tnum(sheet_data.iloc[cur_index][0])
-            cur_tool_data["ToolName"] = sheet_data.iloc[cur_index][8]
-            cur_tool_data["HolderName"] = sheet_data.iloc[cur_index][9]
-            cur_tool_data["CutDistance"] = sheet_data.iloc[cur_index][17]
+            cur_tool_data["ToolName"] = sheet_data.iloc[cur_index][8]  if not pd.isnull(sheet_data.iloc[cur_index][8]) else ""
+            cur_tool_data["HolderName"] = sheet_data.iloc[cur_index][9]  if not pd.isnull(sheet_data.iloc[cur_index][9]) else ""
+            cur_tool_data["CutDistance"] = get_cut_distance(sheet_data.iloc[cur_index][17])
             tool_data.append(cur_tool_data)
             cur_index += 1        
     except:
@@ -198,7 +207,6 @@ def main(mode = "success"):
             tool_data = get_tooling_data(main_file_data, cur_o_dir)
             if len(tool_data) > 0:
                 if mssql_follower.set_tooling_data(tool_data, program_id):
-
                     # xlsx to pdf
                     file_queue.put({
                         "input": file_item,
@@ -206,8 +214,8 @@ def main(mode = "success"):
                     })
 
         else:
-            break
-
+            continue
+        
     for _ in range(proccesses):
         file_queue.put({
             "input": "quit",

@@ -71,6 +71,7 @@ class MssqlFollower:
         except Exception as e:
             logging.error("プログラムレコード操作中エラー発生")
             logging.error(e)
+            self.conn.rollback()
             return 0
 
     def set_tooling_data(self, tool_data, program_id):
@@ -88,11 +89,19 @@ class MssqlFollower:
             fields.insert(0, 'ProgramID')
             query = "INSERT INTO Toolings_list({0}) VALUES ({1})".format( ",".join(fields), ",".join(["%s"] * len(fields)))
             cursor.executemany(query, data)
+
+            # for data_item in data:
+            #     print(query)
+            #     print(data_item)
+            #     cursor.execute(query, data_item)
+            # print("no error")
+
             self.conn.commit()
             logging.info("Programデータ追加完了")
             return True
 
         except Exception as e:
+            self.conn.rollback()
             logging.error("ツールレコード操作中エラー発生")
             logging.error(e)
             return False
