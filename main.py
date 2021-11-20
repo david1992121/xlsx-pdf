@@ -66,6 +66,9 @@ def get_program_data(sheet_data, cur_dir):
     program_data["Tools"] = sheet_data.iloc[1][12] if not pd.isnull(sheet_data.iloc[1][12]) else 0
     program_data["Creator"] = sheet_data.iloc[1][16] if not pd.isnull(sheet_data.iloc[1][16]) else ""
     program_data["Tooling"] = sheet_data.iloc[3][7] if not pd.isnull(sheet_data.iloc[3][7]) else ""
+    program_data["Size"] = sheet_data.iloc[3][12] if not pd.isnull(sheet_data.iloc[3][12]) else ""
+    program_data["Comment1"] = sheet_data.iloc[2][16] if not pd.isnull(sheet_data.iloc[2][16]) else ""
+    program_data["Comment2"] = sheet_data.iloc[3][16] if not pd.isnull(sheet_data.iloc[3][16]) else ""
     program_data["ProcessTime"] = sheet_data.iloc[2][12] if not pd.isnull(sheet_data.iloc[2][12]) else ""
     program_data["FolderPath"] = cur_dir
 
@@ -85,6 +88,7 @@ def get_tooling_data(sheet_data, cur_dir):
             cur_tool_data["Tooling"] = sheet_data.iloc[3][7] if not pd.isnull(sheet_data.iloc[3][7]) else ""
             cur_tool_data["FolderPath"] = cur_dir
             cur_tool_data["TNumber"] = get_tnum(sheet_data.iloc[cur_index][0])
+            cur_tool_data["TipName"] = sheet_data.iloc[cur_index][7]  if not pd.isnull(sheet_data.iloc[cur_index][7]) else ""
             cur_tool_data["ToolName"] = sheet_data.iloc[cur_index][8]  if not pd.isnull(sheet_data.iloc[cur_index][8]) else ""
             cur_tool_data["HolderName"] = sheet_data.iloc[cur_index][9]  if not pd.isnull(sheet_data.iloc[cur_index][9]) else ""
             cur_tool_data["CutDistance"] = get_cut_distance(sheet_data.iloc[cur_index][17])
@@ -176,20 +180,23 @@ def main(mode = "success"):
             continue
 
         category_path = os.path.join(output_path, category)
-        # print(category)
 
         # if directory does not exist then make a new one
         if not os.path.exists(category_path):
             os.mkdir(category_path)
 
         cur_o_dir = os.path.join(category_path, file_name)
-        # print(cur_o_dir)
 
         if not os.path.exists(cur_o_dir):
             os.mkdir(cur_o_dir)
         else:
             empty_folder(cur_o_dir)
         shutil.copy(file_item, cur_o_dir)
+
+        # if 3d pdf exists
+        pdf_path = os.path.join(input_path, "{}_3d.pdf".format(file_name))
+        if os.path.exists(pdf_path):
+            shutil.copy(pdf_path, os.path.join(cur_o_dir, "{}_3d.pdf".format(file_name)))
         
         # get mssql data
         program_data = get_program_data(main_file_data, cur_o_dir)
