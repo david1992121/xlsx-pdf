@@ -196,7 +196,7 @@ def main(mode = "success"):
         # if 3d pdf exists
         pdf_path = os.path.join(input_path, "{}_3d.pdf".format(file_name))
         if os.path.exists(pdf_path):
-            shutil.copy(pdf_path, os.path.join(cur_o_dir, "{}_3d.pdf".format(file_name)))
+            shutil.move(pdf_path, os.path.join(cur_o_dir, "{}_3d.pdf".format(file_name)))            
         
         # get mssql data
         program_data = get_program_data(main_file_data, cur_o_dir)
